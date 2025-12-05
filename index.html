@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice Journal</title>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f5f5f5; padding: 20px; display: flex; justify-content: center; }
+        .container { background: white; width: 100%; max-width: 800px; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #333; }
+        textarea { width: 100%; height: 300px; padding: 15px; font-size: 18px; border: 2px solid #ddd; border-radius: 5px; margin: 15px 0; resize: vertical; }
+        input { width: 100%; padding: 12px; font-size: 16px; margin-bottom: 10px; border: 2px solid #ddd; border-radius: 5px; }
+        button { background-color: #2196F3; color: white; width: 100%; padding: 15px; font-size: 20px; border: none; border-radius: 5px; cursor: pointer; transition: 0.3s; }
+        button:hover { background-color: #1976D2; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>📝 Daily Journal</h1>
+    
+    <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
+
+    <form id="journalForm" onsubmit="return submitToGoogle();">
+        <input type="text" id="studentName" placeholder="Enter your name" required>
+        <textarea id="journalEntry" placeholder="Click here and use Dictation (Search + D)..." required></textarea>
+        <button type="submit" id="submitBtn">✅ Submit to Teacher</button>
+    </form>
+</div>
+
+<script>
+    function submitToGoogle() {
+        // --- UPDATE THESE 3 VARIABLES ---
+        const FORM_URL = "https://docs.google.com/forms/u/0/d/e/YOUR_FORM_ID_HERE/formResponse";
+        const NAME_ID = "entry.123456789"; 
+        const JOURNAL_ID = "entry.987654321";
+        // --------------------------------
+
+        const name = document.getElementById("studentName").value;
+        const entry = document.getElementById("journalEntry").value;
+        const btn = document.getElementById("submitBtn");
+
+        // Build the URL for the hidden iframe
+        const finalUrl = `${FORM_URL}?${NAME_ID}=${encodeURIComponent(name)}&${JOURNAL_ID}=${encodeURIComponent(entry)}`;
+        
+        // Send data
+        const iframe = document.getElementById("hidden_iframe");
+        iframe.src = finalUrl;
+
+        // UI Feedback
+        btn.textContent = "🚀 Sending...";
+        btn.style.backgroundColor = "#4CAF50";
+        btn.disabled = true;
+
+        setTimeout(() => {
+            alert("Sent successfully!");
+            document.getElementById("journalForm").reset();
+            btn.textContent = "✅ Submit to Teacher";
+            btn.style.backgroundColor = "#2196F3";
+            btn.disabled = false;
+        }, 1500);
+
+        return false; // Prevent standard form submit
+    }
+</script>
+
+</body>
+</html>
