@@ -142,19 +142,9 @@
         <div id="authSection" class="auth-section">
             <h3>Step 1: Sign in with your school Google account</h3>
             <p style="margin: 10px 0; color: #666;">You only need to do this once!</p>
-            <div id="g_id_onload"
-                 data-client_id="783305028308-h84fgomb3hdcjjgs323c0dp4n16f4j0g.apps.googleusercontent.com"
-                 data-callback="handleCredentialResponse"
-                 data-auto_prompt="false">
-            </div>
-            <div class="g_id_signin"
-                 data-type="standard"
-                 data-size="large"
-                 data-theme="outline"
-                 data-text="sign_in_with"
-                 data-shape="rectangular"
-                 data-logo_alignment="left">
-            </div>
+            <button onclick="initializeGoogleAuth()" class="send-btn" style="width: auto; padding: 12px 32px;">
+                Sign in with Google
+            </button>
         </div>
 
         <!-- Main interface (hidden until signed in) -->
@@ -176,13 +166,22 @@
         const { jsPDF } = window.jspdf;
         let accessToken = null;
         const TEACHER_EMAIL = 'mgriffiths@sw.wednet.edu';
+        const CLIENT_ID = '783305028308-h84fgomb3hdcjjgs323c0dp4n16f4j0g.apps.googleusercontent.com';
 
-        // Handle Google Sign-In
-        function handleCredentialResponse(response) {
-            accessToken = response.credential;
-            document.getElementById('authSection').classList.add('hidden');
-            document.getElementById('mainInterface').style.display = 'block';
-            showStatus('✓ Signed in successfully!', 'success');
+        // Initialize Google OAuth
+        function initializeGoogleAuth() {
+            google.accounts.oauth2.initTokenClient({
+                client_id: CLIENT_ID,
+                scope: 'https://www.googleapis.com/auth/drive.file',
+                callback: (response) => {
+                    if (response.access_token) {
+                        accessToken = response.access_token;
+                        document.getElementById('authSection').classList.add('hidden');
+                        document.getElementById('mainInterface').style.display = 'block';
+                        showStatus('✓ Signed in successfully!', 'success');
+                    }
+                },
+            }).requestAccessToken();
         }
 
         // Convert text to PDF using canvas with TracingFont
@@ -265,7 +264,8 @@
                 );
 
                 if (!uploadResponse.ok) {
-                    throw new Error('Failed to upload to Google Drive');
+                    const errorData = await uploadResponse.json();
+                    throw new Error(errorData.error?.message || 'Failed to upload to Google Drive');
                 }
 
                 const fileData = await uploadResponse.json();
