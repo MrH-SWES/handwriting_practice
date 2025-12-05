@@ -9,166 +9,78 @@
     <style>
         @font-face {
             font-family: 'TracingFont';
-            src: url(data:font/opentype;base64,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BS8FNAU/BU0FVgVfBWgFcQV6BYMFjAWVVmVyc2lvbiAxLjAwOTtGb250c2VsZiBNYWtlciAzLjUuN1RlYWNoaW5nIFByaW50IERvdHRlZCBMaW5lZFJlZ3VsYXIubnVsbGNvbnRyb2xMRmNvbnRyb2xDUnNwYWNlZXhjbGFtcXVvdGVkYmxubnVtYmVyc2lnbmRvbGxhcnBlcmNlbnRhbXBlcnNhbmRxdW90ZXNpbmdsZXBhcmVubGVmdHBhcmVucmlnaHRhc3Rlcmlza3BsdXNjb21tYWh5cGhlbnBlcmlvZHNsYXNoemVyb29uZXR3b3RocmVlZm91cmZpdmVzaXhzZXZlbmVpZ2h0bmluZWNvbG9uc2VtaWNvbG9ubGVzc2VxdWFsZ3JlYXRlcnF1ZXN0aW9uYXRBQkNERUZHSElKS0xNTk9QUVJTVFVWV1hZWmJyYWNrZXRsZWZ0YmFja3NsYXNoYnJhY2tldHJpZ2h0YXNjaWljaXJjdW11bmRlcnNjb3JlZ3JhdmVhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5emJyYWNlbGVmdHZlcnRpY2FsYmFyYnJhY2VyaWdodGFzY2lpdGlsZGVub25icmVha2luZ3NwYWNlZXhjbGFtZG93bmNlbnRzdGVybGluZ2N1cnJlbmN5eWVuc2VjdGlvbmRpZXJlc2lzY29weXJpZ2h0Z3VpbGxlbW90bGVmdHNvZnRoeXBoZW5yZWdpc3RlcmVkZGVncmVlcGx1c21pbnVzYWN1dGVwYXJhZ3JhcGhjZWRpbGxhZ3VpbGxlbW90cmlnaHRxdWVzdGlvbmRvd25BZ3JhdmVBYWN1dGVBY2lyY3VtZmxleEF0aWxkZUFkaWVyZXNpc0FyaW5nQUVDY2VkaWxsYUVncmF2ZUVhY3V0ZUVjaXJjdW1mbGV4RWRpZXJlc2lzSWdyYXZlSWFjdXRlSWNpcmN1bWZsZXhJZGllcmVzaXNFdGhPZ3JhdmVPYWN1dGVPY2lyY3VtZmxleE90aWxkZU9kaWVyZXNpc211bHRpcGx5T3NsYXNoVWdyYXZlVWFjdXRlVWNpcmN1bWZsZXhVZGllcmVzaXNZYWN1dGVUaG9ybmdlcm1hbmRibHNhZ3JhdmVhYWN1dGVhY2lyY3VtZmxleGF0aWxkZWFkaWVyZXNpc2FyaW5nYWVjY2VkaWxsYWVncmF2ZWVhY3V0ZWVjaXJjdW1mbGV4ZWRpZXJlc2lzaWdyYXZlaWFjdXRlaWNpcmN1bWZsZXhpZGllcmVzaXNldGhvZ3JhdmVvYWN1dGVvY2lyY3VtZmxleG90aWxkZW9kaWVyZXNpc2RpdmlkZW9zbGFzaHVncmF2ZXVhY3V0ZXVjaXJjdW1mbGV4dWRpZXJlc2lzeWFjdXRldGhvcm55ZGllcmVzaXNBbWFjcm9uYW1hY3JvbkFicmV2ZWFicmV2ZUFvZ29uZWthb2dvbmVrQ2FjdXRlY2FjdXRlQ2NpcmN1bWZsZXhjY2lyY3VtZmxleENkb3RhY2NlbnRjZG90YWNjZW50RGNhcm9uZGNhcm9uRGNyb2F0ZGNyb2F0RW1hY3JvbmVtYWNyb25FYnJldmVlYnJldmVFZG90YWNjZW50ZWRvdGFjY2VudEVvZ29uZWtlb2dvbmVrRWNhcm9uZWNhcm9uR2NpcmN1bWZsZXhnY2lyY3VtZmxleEdicmV2ZWdicmV2ZUdkb3RhY2NlbnRnZG90YWNjZW50R2NlZGlsbGFnY2VkaWxsYUhjaXJjdW1mbGV4aGNpcmN1bWZsZXhIYmFyaGJhckl0aWxkZWl0aWxkZUltYWNyb25pbWFjcm9uSWJyZXZlaWJyZXZlSW9nb25la2lvZ29uZWtJZG90YWNjZW50ZG90bGVzc2pKY2lyY3VtZmxleGpjaXJjdW1mbGV4S2NlZGlsbGFrY2VkaWxsYWtzY3JpcHRMYWN1dGVsYWN1dGVMY2VkaWxsYWxjZWRpbGxhTGNhcm9ubGNhcm9uTGRvdGFjY2VudGxkb3RhY2NlbnRMc2xhc2hsc2xhc2hOYWN1dGVuYWN1dGVOY2VkaWxsYW5jZWRpbGxhTmNhcm9ubmNhcm9uYXBvc3Ryb3BoZW5hTGFtZGFPbWFjcm9ub21hY3Jvbk9icmV2ZW9icmV2ZU9odW5nYXJ1bWxhdXRvaHVuZ2FydW1sYXV0T0VvZVJhY3V0ZXJhY3V0ZVJjZWRpbGxhcmNlZGlsbGFSY2Fyb25yY2Fyb25TYWN1dGVzYWN1dGVTY2lyY3VtZmxleHNjaXJjdW1mbGV4U2NlZGlsbGFzY2VkaWxsYVNjYXJvbnNjYXJvblRjZWRpbGxhdGNlZGlsbGFUY2Fyb250Y2Fyb25UYmFydGJhclV0aWxkZXV0aWxkZVVtYWNyb251bWFjcm9uVWJyZXZldWJyZXZlVXJpbmd1cmluZ1VodW5nYXJ1bWxhdXR1aHVuZ2FydW1sYXV0VW9nb25la3VvZ29uZWtXY2lyY3VtZmxled2NpcmN1bWZsZXhZY2lyY3VtZmxleXljaXJjdW1mbGV4WWRpZXJlc2lzWmFjdXRlemFjdXRlWmRvdGFjY2VudHpkb3RhY2NlbnRaY2Fyb256Y2Fyb250b25vcy5jaXJjdW1mbGV4Y2lyY3VtZmxleDAxY2lyY3VtZmxleDAyY2lyY3VtZmxleDAzY2lyY3VtZmxleDA0Y2lyY3VtZmxleDA1Y2lyY3VtZmxleDA2YnJldmUuY2Fyb25kb3QuY2FzdW5pMDAwRE91bmkwMEExdW5pMDAyQnVuaTAwMkN1bmkwMEEydW5pMDBBM3VuaTIwQTR1bmkyMDEzdW5pMjAxNHVuaTIwMTh1bmkyMDE5dW5pMjAxQXVuaTIwMUJ1bmkyMDFDdW5pMjAxRHVuaTIwMUV1bmkyMDIwdW5pMjAyMXVuaTIwMjJ1bmkyMDI2dW5pMjAzMHVuaTIwMzl1bmkyMDNBdW5pMjA0NHVuaTIwQUNFdXJvdW5pMjEyMmVzdGltYXRlZE51bWVyaWNhbDAwTnVtZXJpY2FsMDFOdW1lcmljYWwwMk51bWVyaWNhbDAzTnVtZXJpY2FsMDROdW1lcmljYWwwNU51bWVyaWNhbDA2TnVtZXJpY2FsMA...< truncated 1048576 characters >...kW4ZW0uY2Fyb253VmVyc2lvbiAxLjAwOTtGb250c2VsZiBNYWtlciAzLjUuN1RlYWNoaW5nIFByaW50IERvdHRlZCBMaW5lZFJlZ3VsYXJXZWlnaHRNYXN0ZXJXZWLNAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA) format('opentype');
+            src: url('https://willwade.github.io/HandwritingFonts/fonts/TeachingPrintDottedLined.otf') format('opentype');
             font-weight: normal;
             font-style: normal;
             font-display: block;
         }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: Arial, sans-serif;
-            padding: 20px;
-            background-color: #f5f5f5;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-
-        h1 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 30px;
-        }
-
-        .auth-section {
-            background: #f0f8ff;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        .auth-section.hidden {
-            display: none;
-        }
-
-        .panel {
-            margin-bottom: 20px;
-        }
-
-        .panel h2 {
-            color: #555;
-            margin-bottom: 15px;
-            font-size: 1.3em;
-        }
-
-        textarea {
-            width: 100%;
-            min-height: 300px;
-            padding: 15px;
-            font-size: 18px;
-            border: 2px solid #ddd;
-            border-radius: 5px;
-            resize: vertical;
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-        }
-
-        button {
-            padding: 12px 24px;
-            font-size: 16px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-            width: 100%;
-            margin-bottom: 10px;
-        }
-
-        .send-btn {
-            background-color: #2196F3;
-            color: white;
-        }
-
-        .send-btn:hover {
-            background-color: #0b7dda;
-        }
-
-        .send-btn:disabled {
-            background-color: #ccc;
-            cursor: not-allowed;
-        }
-
-        .clear-btn {
-            background-color: #ff9800;
-            color: white;
-        }
-
-        .clear-btn:hover {
-            background-color: #e68900;
-        }
-
-        .status {
-            text-align: center;
-            padding: 10px;
-            margin-top: 10px;
-            border-radius: 5px;
-            font-weight: bold;
-        }
-
-        .status.info {
-            background-color: #e3f2fd;
-            color: #1976d2;
-        }
-
-        .status.error {
-            background-color: #ffebee;
-            color: #c62828;
-        }
-
-        .status.success {
-            background-color: #e8f5e9;
-            color: #2e7d32;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; padding: 20px; background-color: #f5f5f5; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #333; margin-bottom: 30px; }
+        .auth-section { background: #f0f8ff; padding: 20px; border-radius: 8px; margin-bottom: 20px; text-align: center; }
+        .auth-section.hidden { display: none; }
+        .panel { margin-bottom: 20px; }
+        .panel h2 { color: #555; margin-bottom: 15px; font-size: 1.3em; }
+        textarea { width: 100%; min-height: 300px; padding: 15px; font-size: 18px; border: 2px solid #ddd; border-radius: 5px; resize: vertical; font-family: Arial, sans-serif; line-height: 1.6; }
+        button { padding: 12px 24px; font-size: 16px; border: none; border-radius: 5px; cursor: pointer; transition: background-color 0.3s; width: 100%; margin-bottom: 10px; }
+        .send-btn { background-color: #2196F3; color: white; }
+        .send-btn:hover { background-color: #0b7dda; }
+        .send-btn:disabled { background-color: #ccc; cursor: not-allowed; }
+        .clear-btn { background-color: #ff9800; color: white; }
+        .clear-btn:hover { background-color: #e68900; }
+        .status { text-align: center; padding: 10px; margin-top: 10px; border-radius: 5px; font-weight: bold; }
+        .status.info { background-color: #e3f2fd; color: #1976d2; }
+        .status.error { background-color: #ffebee; color: #c62828; }
+        .status.success { background-color: #e8f5e9; color: #2e7d32; }
+        .font-preload { font-family: 'TracingFont'; position: absolute; left: -9999px; visibility: hidden; font-size: 48px; }
     </style>
 </head>
 <body>
+    <div class="font-preload">ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789</div>
     <div class="container">
         <h1>📝 Handwriting Journal</h1>
-        
-        <!-- Sign in section -->
         <div id="authSection" class="auth-section">
             <h3>Step 1: Sign in with your school Google account</h3>
             <p style="margin: 10px 0; color: #666;">You only need to do this once!</p>
-            <button onclick="initializeGoogleAuth()" class="send-btn" style="width: auto; padding: 12px 32px;">
-                Sign in with Google
-            </button>
+            <button onclick="initializeGoogleAuth()" class="send-btn" style="width: auto; padding: 12px 32px;">Sign in with Google</button>
         </div>
-
-        <!-- Main interface (hidden until signed in) -->
         <div id="mainInterface" style="display: none;">
             <div class="panel">
                 <h2>Type or Dictate Your Journal</h2>
                 <p style="color: #666; margin-bottom: 10px;">Use Chromebook dictation: Press Search + D</p>
                 <textarea id="journalInput" placeholder="Type your journal entry here..."></textarea>
             </div>
-
             <button id="sendBtn" class="send-btn">📧 Send to Teacher</button>
             <button id="clearBtn" class="clear-btn">Clear</button>
         </div>
-
         <div id="status"></div>
     </div>
-
     <script>
         const { jsPDF } = window.jspdf;
         let accessToken = null;
+        let fontLoaded = false;
         const TEACHER_EMAIL = 'mgriffiths@sw.wednet.edu';
         const CLIENT_ID = '783305028308-h84fgomb3hdcjjgs323c0dp4n16f4j0g.apps.googleusercontent.com';
 
-        // Initialize Google OAuth
+        async function loadTracingFont() {
+            try {
+                const font = new FontFace('TracingFont', "url('https://willwade.github.io/HandwritingFonts/fonts/TeachingPrintDottedLined.otf')");
+                await font.load();
+                document.fonts.add(font);
+                fontLoaded = true;
+                console.log('TracingFont loaded successfully');
+                return true;
+            } catch (error) {
+                console.error('Error loading font:', error);
+                await document.fonts.ready;
+                fontLoaded = true;
+                return true;
+            }
+        }
+
+        loadTracingFont();
+
         function initializeGoogleAuth() {
             google.accounts.oauth2.initTokenClient({
                 client_id: CLIENT_ID,
@@ -178,90 +90,94 @@
                         accessToken = response.access_token;
                         document.getElementById('authSection').classList.add('hidden');
                         document.getElementById('mainInterface').style.display = 'block';
-                        showStatus('✓ Signed in successfully!', 'success');
+                        showStatus('Signed in successfully!', 'success');
                     }
                 },
             }).requestAccessToken();
         }
 
-        // Convert text to PDF using canvas with TracingFont
         async function createPDF(text) {
-            const pdf = new jsPDF();
+            if (!fontLoaded) await loadTracingFont();
+            await document.fonts.ready;
             
-            // Create hidden canvas with text in TracingFont
+            const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'letter' });
+            const pageWidth = pdf.internal.pageSize.getWidth();
+            const pageHeight = pdf.internal.pageSize.getHeight();
+            
             const canvas = document.createElement('canvas');
-            canvas.width = 1800;
-            canvas.height = 2400;
+            const scale = 3;
+            canvas.width = pageWidth * scale;
+            canvas.height = pageHeight * scale;
             const ctx = canvas.getContext('2d');
             
-            // White background
             ctx.fillStyle = 'white';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
-            // Draw text in TracingFont
             ctx.fillStyle = 'black';
-            ctx.font = '72px TracingFont';
+            ctx.textBaseline = 'top';
             
-            const lines = text.split('\n');
-            let y = 150;
-            const lineHeight = 180;
+            const fontSize = 48 * scale;
+            ctx.font = fontSize + 'px TracingFont';
             
-            lines.forEach(line => {
-                if (y < canvas.height - 100) {
-                    ctx.fillText(line, 100, y);
-                    y += lineHeight;
+            const marginLeft = 40 * scale;
+            const marginTop = 60 * scale;
+            const maxWidth = canvas.width - (marginLeft * 2);
+            const lineHeight = fontSize * 1.8;
+            
+            let y = marginTop;
+            const paragraphs = text.split('\n');
+            
+            for (const paragraph of paragraphs) {
+                if (paragraph.trim() === '') { y += lineHeight * 0.5; continue; }
+                const words = paragraph.split(' ');
+                let line = '';
+                for (const word of words) {
+                    const testLine = line + (line ? ' ' : '') + word;
+                    const metrics = ctx.measureText(testLine);
+                    if (metrics.width > maxWidth && line) {
+                        ctx.fillText(line, marginLeft, y);
+                        line = word;
+                        y += lineHeight;
+                        if (y > canvas.height - marginTop) {
+                            pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, pageWidth, pageHeight);
+                            pdf.addPage();
+                            ctx.fillStyle = 'white';
+                            ctx.fillRect(0, 0, canvas.width, canvas.height);
+                            ctx.fillStyle = 'black';
+                            ctx.font = fontSize + 'px TracingFont';
+                            y = marginTop;
+                        }
+                    } else { line = testLine; }
                 }
-            });
+                if (line) { ctx.fillText(line, marginLeft, y); y += lineHeight; }
+            }
             
-            // Convert canvas to image and add to PDF
-            const imgData = canvas.toDataURL('image/png');
-            pdf.addImage(imgData, 'PNG', 10, 10, 190, 250);
-            
+            pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, pageWidth, pageHeight);
             return pdf.output('blob');
         }
 
-        // Upload to Google Drive and send email
         async function sendToTeacher() {
             const text = document.getElementById('journalInput').value.trim();
+            if (!text) { showStatus('Please enter some text first.', 'error'); return; }
+            if (!accessToken) { showStatus('Please sign in first.', 'error'); return; }
             
-            if (!text) {
-                showStatus('Please enter some text first.', 'error');
-                return;
-            }
-
-            if (!accessToken) {
-                showStatus('Please sign in first.', 'error');
-                return;
-            }
+            const sendBtn = document.getElementById('sendBtn');
+            sendBtn.disabled = true;
 
             try {
-                showStatus('Creating PDF...', 'info');
-                
-                // Create PDF
+                showStatus('Creating PDF with handwriting font...', 'info');
                 const pdfBlob = await createPDF(text);
                 
                 showStatus('Uploading to Google Drive...', 'info');
-                
-                // Upload to Google Drive
-                const metadata = {
-                    name: `Handwriting_Practice_${new Date().toISOString().split('T')[0]}.pdf`,
-                    mimeType: 'application/pdf'
-                };
-
+                const metadata = { name: 'Handwriting_Practice_' + new Date().toISOString().split('T')[0] + '.pdf', mimeType: 'application/pdf' };
                 const form = new FormData();
                 form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
                 form.append('file', pdfBlob);
 
-                const uploadResponse = await fetch(
-                    'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart',
-                    {
-                        method: 'POST',
-                        headers: {
-                            'Authorization': `Bearer ${accessToken}`
-                        },
-                        body: form
-                    }
-                );
+                const uploadResponse = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
+                    method: 'POST',
+                    headers: { 'Authorization': 'Bearer ' + accessToken },
+                    body: form
+                });
 
                 if (!uploadResponse.ok) {
                     const errorData = await uploadResponse.json();
@@ -271,38 +187,27 @@
                 const fileData = await uploadResponse.json();
                 const fileId = fileData.id;
 
-                // Make file accessible
-                await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}/permissions`, {
+                await fetch('https://www.googleapis.com/drive/v3/files/' + fileId + '/permissions', {
                     method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${accessToken}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        role: 'reader',
-                        type: 'anyone'
-                    })
+                    headers: { 'Authorization': 'Bearer ' + accessToken, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ role: 'reader', type: 'anyone' })
                 });
 
-                // Open Gmail with link
-                const driveLink = `https://drive.google.com/file/d/${fileId}/view`;
+                const driveLink = 'https://drive.google.com/file/d/' + fileId + '/view';
                 const subject = 'Handwriting Practice Journal';
-                const body = encodeURIComponent(`Here is my handwriting practice:\n\n${driveLink}\n\n(Click the link to view and download the PDF)`);
+                const body = encodeURIComponent('Here is my handwriting practice:\n\n' + driveLink + '\n\n(Click the link to view and download the PDF)');
                 
-                window.open(
-                    `https://mail.google.com/mail/?view=cm&fs=1&to=${TEACHER_EMAIL}&su=${subject}&body=${body}`,
-                    '_blank'
-                );
-
-                showStatus('✓ Success! Email window opened.', 'success');
+                window.open('https://mail.google.com/mail/?view=cm&fs=1&to=' + TEACHER_EMAIL + '&su=' + subject + '&body=' + body, '_blank');
+                showStatus('Success! Email window opened.', 'success');
                 
             } catch (error) {
                 console.error('Error:', error);
                 showStatus('Error: ' + error.message, 'error');
+            } finally {
+                sendBtn.disabled = false;
             }
         }
 
-        // Event listeners
         document.getElementById('sendBtn').addEventListener('click', sendToTeacher);
         document.getElementById('clearBtn').addEventListener('click', () => {
             document.getElementById('journalInput').value = '';
@@ -313,12 +218,9 @@
             const statusDiv = document.getElementById('status');
             statusDiv.textContent = message;
             statusDiv.className = 'status ' + type;
-            setTimeout(() => {
-                if (type !== 'success') {
-                    statusDiv.textContent = '';
-                    statusDiv.className = 'status';
-                }
-            }, 5000);
+            if (type !== 'success' && type !== 'info') {
+                setTimeout(() => { statusDiv.textContent = ''; statusDiv.className = 'status'; }, 5000);
+            }
         }
     </script>
 </body>
