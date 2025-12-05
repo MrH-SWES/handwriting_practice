@@ -6,14 +6,8 @@
     <title>Voice Journal to Handwriting Practice</title>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link href="https://db.onlinewebfonts.com/c/39fb6851b2f2f38e273a81a5dc9d91d0?family=Teaching+Print+Dotted+Lined" rel="stylesheet">
     <style>
-        @font-face {
-            font-family: 'TracingFont';
-            src: url('https://willwade.github.io/HandwritingFonts/fonts/TeachingPrintDottedLined.otf') format('opentype');
-            font-weight: normal;
-            font-style: normal;
-            font-display: block;
-        }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: Arial, sans-serif; padding: 20px; background-color: #f5f5f5; }
         .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
@@ -29,11 +23,14 @@
         .send-btn:disabled { background-color: #ccc; cursor: not-allowed; }
         .clear-btn { background-color: #ff9800; color: white; }
         .clear-btn:hover { background-color: #e68900; }
+        .preview-btn { background-color: #4CAF50; color: white; }
+        .preview-btn:hover { background-color: #45a049; }
         .status { text-align: center; padding: 10px; margin-top: 10px; border-radius: 5px; font-weight: bold; }
         .status.info { background-color: #e3f2fd; color: #1976d2; }
         .status.error { background-color: #ffebee; color: #c62828; }
         .status.success { background-color: #e8f5e9; color: #2e7d32; }
-        .font-preload { font-family: 'TracingFont'; position: absolute; left: -9999px; visibility: hidden; font-size: 48px; }
+        .font-preload { font-family: 'Teaching Print Dotted Lined'; position: absolute; left: -9999px; visibility: hidden; font-size: 72px; }
+        .preview-area { margin-top: 20px; padding: 20px; border: 2px dashed #ccc; border-radius: 8px; min-height: 100px; font-family: 'Teaching Print Dotted Lined'; font-size: 48px; line-height: 1.8; background: white; }
     </style>
 </head>
 <body>
@@ -49,8 +46,10 @@
             <div class="panel">
                 <h2>Type or Dictate Your Journal</h2>
                 <p style="color: #666; margin-bottom: 10px;">Use Chromebook dictation: Press Search + D</p>
-                <textarea id="journalInput" placeholder="Type your journal entry here..."></textarea>
+                <textarea id="journalInput" placeholder="Type your journal entry here..." oninput="updatePreview()"></textarea>
             </div>
+            <button id="previewBtn" class="preview-btn" onclick="updatePreview()">👁 Preview Handwriting</button>
+            <div id="previewArea" class="preview-area" style="display:none;"></div>
             <button id="sendBtn" class="send-btn">📧 Send to Teacher</button>
             <button id="clearBtn" class="clear-btn">Clear</button>
         </div>
@@ -59,27 +58,43 @@
     <script>
         const { jsPDF } = window.jspdf;
         let accessToken = null;
-        let fontLoaded = false;
+        let fontReady = false;
         const TEACHER_EMAIL = 'mgriffiths@sw.wednet.edu';
         const CLIENT_ID = '783305028308-h84fgomb3hdcjjgs323c0dp4n16f4j0g.apps.googleusercontent.com';
+        const FONT_NAME = 'Teaching Print Dotted Lined';
 
-        async function loadTracingFont() {
+        // Wait for font to load
+        document.fonts.ready.then(() => {
+            console.log('Fonts ready');
+            // Check if our font loaded
+            if (document.fonts.check('48px "Teaching Print Dotted Lined"')) {
+                console.log('Teaching Print Dotted Lined font loaded!');
+                fontReady = true;
+            } else {
+                console.log('Font not detected, will try loading via FontFace API');
+                loadFontManually();
+            }
+        });
+
+        async function loadFontManually() {
             try {
-                const font = new FontFace('TracingFont', "url('https://willwade.github.io/HandwritingFonts/fonts/TeachingPrintDottedLined.otf')");
+                const font = new FontFace('Teaching Print Dotted Lined', 
+                    'url(https://db.onlinewebfonts.com/t/39fb6851b2f2f38e273a81a5dc9d91d0.woff2) format("woff2")');
                 await font.load();
                 document.fonts.add(font);
-                fontLoaded = true;
-                console.log('TracingFont loaded successfully');
-                return true;
-            } catch (error) {
-                console.error('Error loading font:', error);
-                await document.fonts.ready;
-                fontLoaded = true;
-                return true;
+                fontReady = true;
+                console.log('Font loaded manually via FontFace API');
+            } catch (e) {
+                console.error('Manual font load failed:', e);
             }
         }
 
-        loadTracingFont();
+        function updatePreview() {
+            const text = document.getElementById('journalInput').value;
+            const preview = document.getElementById('previewArea');
+            preview.style.display = 'block';
+            preview.textContent = text || 'Your text will appear here in handwriting font...';
+        }
 
         function initializeGoogleAuth() {
             google.accounts.oauth2.initTokenClient({
@@ -97,8 +112,11 @@
         }
 
         async function createPDF(text) {
-            if (!fontLoaded) await loadTracingFont();
+            // Make sure font is loaded
             await document.fonts.ready;
+            
+            // Double check with a small delay to ensure rendering is ready
+            await new Promise(resolve => setTimeout(resolve, 100));
             
             const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'letter' });
             const pageWidth = pdf.internal.pageSize.getWidth();
@@ -115,15 +133,19 @@
             ctx.fillStyle = 'black';
             ctx.textBaseline = 'top';
             
-            const fontSize = 48 * scale;
-            ctx.font = fontSize + 'px TracingFont';
+            const fontSize = 42 * scale;
+            ctx.font = fontSize + 'px "Teaching Print Dotted Lined"';
+            
+            // Test if font is actually being used
+            console.log('Canvas font set to:', ctx.font);
             
             const marginLeft = 40 * scale;
             const marginTop = 60 * scale;
             const maxWidth = canvas.width - (marginLeft * 2);
-            const lineHeight = fontSize * 1.8;
+            const lineHeight = fontSize * 1.9;
             
             let y = marginTop;
+            let pageNum = 1;
             const paragraphs = text.split('\n');
             
             for (const paragraph of paragraphs) {
@@ -140,10 +162,11 @@
                         if (y > canvas.height - marginTop) {
                             pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, pageWidth, pageHeight);
                             pdf.addPage();
+                            pageNum++;
                             ctx.fillStyle = 'white';
                             ctx.fillRect(0, 0, canvas.width, canvas.height);
                             ctx.fillStyle = 'black';
-                            ctx.font = fontSize + 'px TracingFont';
+                            ctx.font = fontSize + 'px "Teaching Print Dotted Lined"';
                             y = marginTop;
                         }
                     } else { line = testLine; }
@@ -211,6 +234,7 @@
         document.getElementById('sendBtn').addEventListener('click', sendToTeacher);
         document.getElementById('clearBtn').addEventListener('click', () => {
             document.getElementById('journalInput').value = '';
+            document.getElementById('previewArea').style.display = 'none';
             showStatus('Cleared.', 'info');
         });
 
