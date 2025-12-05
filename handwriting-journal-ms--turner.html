@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Handwriting Journal - Ms. Turner's Class</title>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link href="https://db.onlinewebfonts.com/c/39fb6851b2f2f38e273a81a5dc9d91d0?family=Teaching+Print+Dotted+Lined" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; padding: 20px; background-color: #f5f5f5; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #333; margin-bottom: 10px; }
+        .teacher-info { text-align: center; color: #666; margin-bottom: 25px; }
+        .auth-section { background: #f0f8ff; padding: 20px; border-radius: 8px; margin-bottom: 20px; text-align: center; }
+        .auth-section.hidden { display: none; }
+        .name-section { background: #e8f5e9; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+        .name-section label { display: block; margin-bottom: 8px; font-weight: bold; }
+        .name-section input { width: 100%; padding: 12px; font-size: 18px; border: 2px solid #ddd; border-radius: 5px; }
+        .panel { margin-bottom: 20px; }
+        .panel h2 { color: #555; margin-bottom: 15px; font-size: 1.3em; }
+        textarea { width: 100%; min-height: 300px; padding: 15px; font-size: 18px; border: 2px solid #ddd; border-radius: 5px; resize: vertical; font-family: Arial, sans-serif; line-height: 1.6; }
+        button { padding: 12px 24px; font-size: 16px; border: none; border-radius: 5px; cursor: pointer; transition: background-color 0.3s; width: 100%; margin-bottom: 10px; }
+        .send-btn { background-color: #2196F3; color: white; }
+        .send-btn:hover { background-color: #0b7dda; }
+        .send-btn:disabled { background-color: #ccc; cursor: not-allowed; }
+        .clear-btn { background-color: #ff9800; color: white; }
+        .clear-btn:hover { background-color: #e68900; }
+        .preview-btn { background-color: #4CAF50; color: white; }
+        .preview-btn:hover { background-color: #45a049; }
+        .status { text-align: center; padding: 10px; margin-top: 10px; border-radius: 5px; font-weight: bold; }
+        .status.info { background-color: #e3f2fd; color: #1976d2; }
+        .status.error { background-color: #ffebee; color: #c62828; }
+        .status.success { background-color: #e8f5e9; color: #2e7d32; }
+        .font-preload { font-family: 'Teaching Print Dotted Lined'; position: absolute; left: -9999px; visibility: hidden; font-size: 72px; }
+        .preview-area { margin-top: 20px; padding: 20px; border: 2px dashed #ccc; border-radius: 8px; min-height: 100px; font-family: 'Teaching Print Dotted Lined'; font-size: 64px; line-height: 1.8; background: white; }
+    </style>
+</head>
+<body>
+    <div class="font-preload">ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789</div>
+    <div class="container">
+        <h1>📝 Handwriting Journal</h1>
+        <p class="teacher-info">Ms. Turner's Class</p>
+        
+        <div id="nameSection" class="name-section">
+            <label for="studentName">What's your name?</label>
+            <input type="text" id="studentName" placeholder="Type your name here">
+            <button onclick="saveName()" class="send-btn" style="margin-top: 15px;">Continue</button>
+        </div>
+
+        <div id="authSection" class="auth-section" style="display: none;">
+            <h3>Sign in with your school Google account</h3>
+            <p style="margin: 10px 0; color: #666;">You only need to do this once!</p>
+            <button onclick="initializeGoogleAuth()" class="send-btn" style="width: auto; padding: 12px 32px;">Sign in with Google</button>
+        </div>
+
+        <div id="mainInterface" style="display: none;">
+            <p style="margin-bottom: 15px; color: #666;">Hi <strong id="displayStudent"></strong>! Your work will be sent to Ms. Turner.</p>
+            <div class="panel">
+                <h2>Type or Dictate Your Journal</h2>
+                <p style="color: #666; margin-bottom: 10px;">Use Chromebook dictation: Press Search + D</p>
+                <textarea id="journalInput" placeholder="Type your journal entry here..." oninput="updatePreview()"></textarea>
+            </div>
+            <button class="preview-btn" onclick="updatePreview()">👁 Preview Handwriting</button>
+            <div id="previewArea" class="preview-area" style="display:none;"></div>
+            <button id="sendBtn" class="send-btn">📧 Send to Ms. Turner</button>
+            <button id="clearBtn" class="clear-btn">Clear</button>
+        </div>
+        <div id="status"></div>
+    </div>
+    <script>
+        const { jsPDF } = window.jspdf;
+        let accessToken = null;
+        let studentName = '';
+        const TEACHER_EMAIL = 'vturner@sw.wednet.edu';
+        const TEACHER_NAME = 'Ms. Turner';
+        const CLIENT_ID = '783305028308-h84fgomb3hdcjjgs323c0dp4n16f4j0g.apps.googleusercontent.com';
+
+        window.onload = function() {
+            const saved = localStorage.getItem('studentName_vturnerswwednetedu');
+            if (saved) {
+                studentName = saved;
+                document.getElementById('nameSection').style.display = 'none';
+                document.getElementById('authSection').style.display = 'block';
+                document.getElementById('displayStudent').textContent = studentName;
+            }
+        };
+
+        function saveName() {
+            studentName = document.getElementById('studentName').value.trim();
+            if (!studentName) { showStatus('Please enter your name.', 'error'); return; }
+            localStorage.setItem('studentName_vturnerswwednetedu', studentName);
+            document.getElementById('nameSection').style.display = 'none';
+            document.getElementById('authSection').style.display = 'block';
+            document.getElementById('displayStudent').textContent = studentName;
+        }
+
+        document.fonts.ready.then(() => {
+            if (!document.fonts.check('48px "Teaching Print Dotted Lined"')) {
+                const font = new FontFace('Teaching Print Dotted Lined', 'url(https://db.onlinewebfonts.com/t/39fb6851b2f2f38e273a81a5dc9d91d0.woff2) format("woff2")');
+                font.load().then(f => document.fonts.add(f));
+            }
+        });
+
+        function updatePreview() {
+            const text = document.getElementById('journalInput').value;
+            const preview = document.getElementById('previewArea');
+            preview.style.display = 'block';
+            preview.textContent = text || 'Your text will appear here...';
+        }
+
+        function initializeGoogleAuth() {
+            google.accounts.oauth2.initTokenClient({
+                client_id: CLIENT_ID,
+                scope: 'https://www.googleapis.com/auth/drive.file',
+                callback: (response) => {
+                    if (response.access_token) {
+                        accessToken = response.access_token;
+                        document.getElementById('authSection').style.display = 'none';
+                        document.getElementById('mainInterface').style.display = 'block';
+                        showStatus('Signed in!', 'success');
+                    }
+                },
+            }).requestAccessToken();
+        }
+
+        async function createPDF(text) {
+            await document.fonts.ready;
+            await new Promise(r => setTimeout(r, 100));
+            const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'letter' });
+            const pageWidth = pdf.internal.pageSize.getWidth();
+            const pageHeight = pdf.internal.pageSize.getHeight();
+            const canvas = document.createElement('canvas');
+            const scale = 3;
+            canvas.width = pageWidth * scale;
+            canvas.height = pageHeight * scale;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = 'black';
+            ctx.textBaseline = 'top';
+            const fontSize = 56 * scale;
+            ctx.font = fontSize + 'px "Teaching Print Dotted Lined"';
+            const marginLeft = 40 * scale;
+            const marginTop = 60 * scale;
+            const maxWidth = canvas.width - (marginLeft * 2);
+            const lineHeight = fontSize * 2.0;
+            let y = marginTop;
+            for (const paragraph of text.split('\n')) {
+                if (!paragraph.trim()) { y += lineHeight * 0.5; continue; }
+                let line = '';
+                for (const word of paragraph.split(' ')) {
+                    const testLine = line + (line ? ' ' : '') + word;
+                    if (ctx.measureText(testLine).width > maxWidth && line) {
+                        ctx.fillText(line, marginLeft, y);
+                        line = word;
+                        y += lineHeight;
+                        if (y > canvas.height - marginTop) {
+                            pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, pageWidth, pageHeight);
+                            pdf.addPage();
+                            ctx.fillStyle = 'white';
+                            ctx.fillRect(0, 0, canvas.width, canvas.height);
+                            ctx.fillStyle = 'black';
+                            ctx.font = fontSize + 'px "Teaching Print Dotted Lined"';
+                            y = marginTop;
+                        }
+                    } else { line = testLine; }
+                }
+                if (line) { ctx.fillText(line, marginLeft, y); y += lineHeight; }
+            }
+            pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, pageWidth, pageHeight);
+            return pdf.output('blob');
+        }
+
+        async function sendToTeacher() {
+            const text = document.getElementById('journalInput').value.trim();
+            if (!text) { showStatus('Please enter some text first.', 'error'); return; }
+            if (!accessToken) { showStatus('Please sign in first.', 'error'); return; }
+            document.getElementById('sendBtn').disabled = true;
+            try {
+                showStatus('Creating PDF...', 'info');
+                const pdfBlob = await createPDF(text);
+                showStatus('Uploading...', 'info');
+                const today = new Date().toISOString().split('T')[0];
+                const form = new FormData();
+                form.append('metadata', new Blob([JSON.stringify({ name: studentName + '_Handwriting_' + today + '.pdf', mimeType: 'application/pdf' })], { type: 'application/json' }));
+                form.append('file', pdfBlob);
+                const uploadResponse = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
+                    method: 'POST', headers: { 'Authorization': 'Bearer ' + accessToken }, body: form
+                });
+                if (!uploadResponse.ok) throw new Error('Upload failed');
+                const fileData = await uploadResponse.json();
+                await fetch('https://www.googleapis.com/drive/v3/files/' + fileData.id + '/permissions', {
+                    method: 'POST',
+                    headers: { 'Authorization': 'Bearer ' + accessToken, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ role: 'reader', type: 'anyone' })
+                });
+                const link = 'https://drive.google.com/file/d/' + fileData.id + '/view';
+                const subject = 'Handwriting Practice - ' + studentName;
+                const body = encodeURIComponent('Hi ' + TEACHER_NAME + '!\n\nHere is my handwriting practice:\n\n' + link + '\n\nFrom,\n' + studentName);
+                window.open('https://mail.google.com/mail/?view=cm&fs=1&to=' + TEACHER_EMAIL + '&su=' + subject + '&body=' + body, '_blank');
+                showStatus('Success! Email window opened.', 'success');
+            } catch (error) {
+                showStatus('Error: ' + error.message, 'error');
+            } finally {
+                document.getElementById('sendBtn').disabled = false;
+            }
+        }
+
+        document.getElementById('sendBtn').addEventListener('click', sendToTeacher);
+        document.getElementById('clearBtn').addEventListener('click', () => {
+            document.getElementById('journalInput').value = '';
+            document.getElementById('previewArea').style.display = 'none';
+        });
+
+        function showStatus(message, type) {
+            const s = document.getElementById('status');
+            s.textContent = message;
+            s.className = 'status ' + type;
+        }
+    </script>
+</body>
+</html>
