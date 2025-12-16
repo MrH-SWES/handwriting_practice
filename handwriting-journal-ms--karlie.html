@@ -32,6 +32,27 @@
         .preview-btn { background-color: #4CAF50; color: white; margin-bottom: 20px; }
         .clear-btn { background-color: #FF9800; color: white; width: auto; font-size: 14px; padding: 8px 16px; margin-top: 10px; float: right; }
         
+        /* Mic Button Styles */
+        .mic-btn { 
+            background-color: #f44336; /* Red for recording */
+            color: white; 
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .mic-btn:hover { background-color: #d32f2f; }
+        .mic-btn.listening { 
+            animation: pulse 1.5s infinite; 
+            background-color: #ff1744;
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(244, 67, 54, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(244, 67, 54, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(244, 67, 54, 0); }
+        }
+
         /* Preview */
         .preview-area { margin-top: 20px; padding: 20px; border: 3px dashed #b0bec5; border-radius: 10px; min-height: 120px; font-family: 'Teaching Print Dotted Lined'; font-size: 60px; line-height: 1.8; background: white; word-wrap: break-word; display:none; }
         .font-preload { font-family: 'Teaching Print Dotted Lined'; position: absolute; left: -9999px; visibility: hidden; }
@@ -60,8 +81,11 @@
             <p style="margin-bottom: 15px;">Student: <strong id="displayStudent" style="color: #2196F3;"></strong></p>
             
             <div class="panel">
-                <div style="font-size: 0.9em; color: #666; margin-bottom: 5px;">💡 Tip: Press <b>Search + D</b> to dictate!</div>
-                <textarea id="journalInput" placeholder="Type or dictate your journal entry here..." oninput="updatePreview()"></textarea>
+                <button id="micBtn" class="mic-btn" onclick="toggleDictation()">
+                    <span>🎤</span> <span id="micStatus">Tap to Speak</span>
+                </button>
+
+                <textarea id="journalInput" placeholder="Tap the mic or type here..." oninput="updatePreview()"></textarea>
                 <button id="clearBtn" class="clear-btn">Clear Text</button>
                 <div style="clear: both;"></div>
             </div>
@@ -81,13 +105,11 @@
         const { jsPDF } = window.jspdf;
         
         // ==========================================
-        // CONFIGURATION - CHANGE THIS FOR EACH FILE!
+        // CONFIGURATION
         // ==========================================
         
         const TEACHER_NAME = "Ms. Karlie"; 
         const TEACHER_EMAIL = "khutson@sw.wednet.edu";
-        
-        // This is your Script URL you just sent me
         const CENTRAL_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyrfCdgct4_U3XfbdRUBmt-0PiGCaXu08M4RK6lV4QFs1CnGFEuJoOIQ8YyitouoP0G/exec"; 
         
         // ==========================================
@@ -121,6 +143,95 @@
             }
         });
 
+        /* =========================================
+           SMART DICTATION LOGIC
+           ========================================= */
+        let recognition;
+        let isListening = false;
+
+        if ('webkitSpeechRecognition' in window) {
+            recognition = new webkitSpeechRecognition();
+            recognition.continuous = true;
+            recognition.interimResults = true; 
+            recognition.lang = 'en-US';        
+
+            recognition.onstart = function() {
+                isListening = true;
+                document.getElementById('micBtn').classList.add('listening');
+                document.getElementById('micStatus').textContent = "Listening... (Tap to Stop)";
+            };
+
+            recognition.onend = function() {
+                isListening = false;
+                document.getElementById('micBtn').classList.remove('listening');
+                document.getElementById('micStatus').textContent = "Tap to Speak";
+            };
+
+            recognition.onresult = function(event) {
+                let finalTranscript = '';
+                
+                // Loop through results to separate interim from final
+                for (let i = event.resultIndex; i < event.results.length; ++i) {
+                    if (event.results[i].isFinal) {
+                        finalTranscript += event.results[i][0].transcript;
+                    }
+                }
+
+                if (finalTranscript) {
+                    const input = document.getElementById('journalInput');
+                    let previousText = input.value;
+                    
+                    // Add space if needed
+                    if (previousText && !previousText.endsWith(' ') && !previousText.endsWith('\n')) {
+                        previousText += ' ';
+                    }
+                    
+                    let newText = previousText + finalTranscript;
+                    input.value = cleanUpText(newText);
+                    updatePreview(); 
+                }
+            };
+        } else {
+            document.getElementById('micBtn').style.display = 'none';
+            console.log("Web Speech API not supported.");
+        }
+
+        function toggleDictation() {
+            if (!recognition) { alert("Speech recognition not supported on this browser."); return; }
+            if (isListening) {
+                recognition.stop();
+            } else {
+                recognition.start();
+            }
+        }
+
+        // Basic Grammar Cleanup Function
+        function cleanUpText(text) {
+            // Capitalize 'i' alone
+            text = text.replace(/\bi\b/g, 'I');
+            // Capitalize 'i'm' -> "I'm"
+            text = text.replace(/\bi'm\b/g, "I'm");
+            
+            // Capitalize first letter of string
+            if(text.length > 0) {
+                text = text.charAt(0).toUpperCase() + text.slice(1);
+            }
+
+            // Capitalize after punctuation (. ? !)
+            text = text.replace(/([.!?]\s+)([a-z])/g, function(match, separator, char) {
+                return separator + char.toUpperCase();
+            });
+
+            // Remove double spaces
+            text = text.replace(/\s+/g, ' ');
+
+            return text;
+        }
+
+        // =========================================
+        // PDF & PREVIEW LOGIC
+        // =========================================
+
         function updatePreview() {
             const text = document.getElementById('journalInput').value;
             const preview = document.getElementById('previewArea');
@@ -132,7 +243,6 @@
             }
         }
 
-        // PDF Generation
         async function createPDF(text) {
             await document.fonts.ready;
             await new Promise(r => setTimeout(r, 100));
@@ -179,7 +289,6 @@
             return pdf.output('datauristring');
         }
 
-        // Sending Logic
         async function sendToTeacher() {
             if (CENTRAL_SCRIPT_URL.includes('PASTE_YOUR')) {
                 showStatus('Error: Setup incomplete. Script URL missing.', 'error'); return;
@@ -199,7 +308,7 @@
                 
                 const payload = {
                     filename: `${studentName}_Journal_${today}.pdf`,
-                    targetEmail: TEACHER_EMAIL, // This tells the script where to send it
+                    targetEmail: TEACHER_EMAIL,
                     filedata: pdfData
                 };
 
